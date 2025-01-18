@@ -2,3 +2,4 @@
 web/.vscode
 docker/data
 test
+node_client/common/keystore.db
