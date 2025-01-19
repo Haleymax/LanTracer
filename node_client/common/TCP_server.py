@@ -2,7 +2,7 @@ import socket
 
 
 from common.device_info import DeviceInfo
-from config import tcp_port
+from config.config import tcp_port
 
 
 class TCPServer:
