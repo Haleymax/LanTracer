@@ -1,11 +1,13 @@
 import threading
 import time
+import urllib
+
 from common.KeyStore import KeyStore
 from common.TCP_server import TCPServer
 from common.aes_encryption import encrypt
 from common.device_info import DeviceInfo
 from urllib import request, parse
-from config import init_api, check_api
+from config import init_api, check_api, tcp_port
 
 
 def send_init_request_decorator(func):
@@ -24,16 +26,19 @@ def send_init_request():
     max_retries = 5
     retries = 0
     init_api = "http://example.com/init"  # 替换为实际的初始化 API URL
+
+    post_data = {
+        "slave_address":DeviceInfo.get_local_ip(),
+        "slave_port":tcp_port
+    }
     while retries < max_retries:
         try:
-            response = request.urlopen(url=init_api)
-            if response.code == 200:
-                response_data = response.read().decode('utf-8')
-                # 处理响应数据，例如存储密钥等
-                print("初始化请求成功:", response_data)
-                break
-            else:
-                retries += 1
+            data = urllib.parse.urlencode(post_data).encode('utf-8')
+            req = urllib.request.Request(url=init_api, data=data, method='POST')
+            with urllib.request.urlopen(req) as response:
+                if response.code == 200:
+                    response_data = response.read().decode('utf-8')
+                    print("请求发送成功")
         except Exception as e:
             print(f"请求发生错误: {e}")
             retries += 1
@@ -66,7 +71,7 @@ class SlaveNode:
         self.check_thread.start()
 
     def get_shared_key(self):
-        path = r"D:\project\python\LanTracer\node_client\data\keystore.db"
+        path = r"/data/keystore.db"
         with KeyStore(path) as keystore:
             self.shared_key = keystore.get_key("api_key")
 

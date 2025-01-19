@@ -1,6 +1,6 @@
 import argparse
 
-from slave_node import SlaveNode
+from common.slave_node import SlaveNode
 
 
 def main():

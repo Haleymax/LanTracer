@@ -5,3 +5,4 @@ test
 node_client/data/keystore.db
 node_client/__pycache__
 node_client/common/__pycache__
+server/common/__pycache__
