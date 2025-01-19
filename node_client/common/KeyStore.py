@@ -27,7 +27,7 @@ class KeyStore:
     DELETE FROM keys WHERE key_name = ?
     '''
 
-    def __init__(self, database_path: str = 'keystore.db'):
+    def __init__(self, database_path: str = '../data/keystore.db'):
         """
         初始化存储数据类
         :param database_path: SQLite 数据库文件名（默认为 keystore.db）

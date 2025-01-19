@@ -8,6 +8,7 @@ class Node(models.Model):
     node_name = models.CharField(max_length=50, null=True)
     total_menory = models.IntegerField(default=0, null=True)
     remaining_menory = models.IntegerField(default=0, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
     state = models.CharField(max_length=50, null=True, default='offline')
 
 

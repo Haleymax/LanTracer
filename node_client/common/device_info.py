@@ -8,7 +8,7 @@ class DeviceInfo:
         pass
 
     @staticmethod
-    def get_local_ip(self) -> str:
+    def get_local_ip() -> str:
         """
         获取本机ip地址
         :return: 返回本机的ip地址
