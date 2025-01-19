@@ -7,7 +7,8 @@ from common.TCP_server import TCPServer
 from common.aes_encryption import encrypt
 from common.device_info import DeviceInfo
 from urllib import request, parse
-from config import init_api, check_api, tcp_port
+
+from config.config import tcp_port, check_api
 
 
 def send_init_request_decorator(func):
