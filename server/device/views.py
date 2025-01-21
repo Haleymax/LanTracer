@@ -58,3 +58,10 @@ def init(request):
     else:
         result["success"] = False
         return HttpResponse(json.dumps(result), content_type="application/json", status=201)
+
+
+def check(request):
+    result = {}
+    if request.method == "POST":
+        host = request.POST['host']
+        used_space = request.POST['used_space']
