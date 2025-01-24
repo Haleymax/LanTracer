@@ -27,7 +27,7 @@ class KeyStore:
     DELETE FROM keys WHERE key_name = ?
     '''
 
-    def __init__(self, database_path: str = '../data/keystore.db'):
+    def __init__(self, database_path: str = './data/keystore.db'):
         """
         初始化存储数据类
         :param database_path: SQLite 数据库文件名（默认为 keystore.db）
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         store.insert_key('secret_key', '98765-ZYXWV-43210')
 
         # 获取密钥
-        api_key = store.get_key('api_key')
+        api_key = store.get_key('secret')
         print("API Key:", api_key)  # 输出：API Key: 12345-ABCDE-67890
 
         # 更新密钥

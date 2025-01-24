@@ -6,3 +6,6 @@ node_client/data/keystore.db
 node_client/__pycache__
 node_client/common/__pycache__
 server/common/__pycache__
+server/server/__pycache__
+server/device/__pycache__
+server/device/migrations/__pycache__

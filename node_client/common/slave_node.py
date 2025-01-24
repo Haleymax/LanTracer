@@ -1,14 +1,15 @@
+import json
 import threading
 import time
 import urllib
 
-from common.KeyStore import KeyStore
-from common.TCP_server import TCPServer
-from common.aes_encryption import encrypt
-from common.device_info import DeviceInfo
 from urllib import request, parse
 
-from config.config import tcp_port, check_api, get_key_api
+from common.aes_encryption import encrypt
+from node_client.common.KeyStore import KeyStore
+from node_client.common.TCP_server import TCPServer
+from node_client.common.device_info import DeviceInfo
+from node_client.config.config import tcp_port, get_key_api, check_api
 
 
 def send_init_request_decorator(func):
@@ -26,7 +27,7 @@ def send_init_request_decorator(func):
 def send_init_request():
     max_retries = 5
     retries = 0
-    init_api = "http://example.com/init"  # 替换为实际的初始化 API URL
+    init_api = "http://127.0.0.1/init"  # 替换为实际的初始化 API URL
 
     post_data = {
         "slave_address":DeviceInfo.get_local_ip(),
@@ -84,8 +85,10 @@ class SlaveNode:
         }
         while retries < max_retries:
             try:
-                data = urllib.parse.urlencode(post_data).encode('utf-8')
-                req = urllib.request.Request(url=get_key_api, data=data, method='POST')
+                data = json.dumps(post_data).encode('utf-8')
+                headers = {'Content-Type': 'application/json'}
+                print(get_key_api)
+                req = urllib.request.Request(url=get_key_api, data=data, headers=headers, method='POST')
                 with urllib.request.urlopen(req) as response:
                     if response.code == 200:
                         response_data = response.read().decode('utf-8')

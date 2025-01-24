@@ -1,6 +1,6 @@
 import socket
 
-from server.common.logger import logger
+from common.logger import logger
 
 
 class TCPClient:
