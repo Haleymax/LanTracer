@@ -1,4 +1,4 @@
-master_host = '192.168.18.110'
+master_host = '127.0.0.1'
 tcp_port = '12345'
 
 init_api = 'http://' + master_host + '/init'
