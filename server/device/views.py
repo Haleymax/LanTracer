@@ -1,12 +1,14 @@
 import json
+import threading
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from common.aes_encryption import get_key
-from server.common.logger import logger
-from server.common.tcp_client import TCPClient
-from server.device.models import SharedKey
+from common.logger import logger
+from common.tcp_client import TCPClient
+from core.tcp_send_key import send_shared_key
+from device.models import SharedKey
 
 
 # Create your views here.
@@ -65,3 +67,34 @@ def check(request):
     if request.method == "POST":
         host = request.POST['host']
         used_space = request.POST['used_space']
+        return HttpResponse(json.dumps(result), content_type="application/json", status=200)
+
+@csrf_exempt
+def get_share_key(request):
+    result = {}
+    if request.method == "POST":
+        try:
+            # 检查请求体是否为空
+            if not request.body:
+                return HttpResponse(json.dumps({"error": "Empty request body"}), content_type="application/json", status=400)
+
+            # 解析 JSON 数据
+            data = json.loads(request.body)
+            host = data.get("slave_address")  # 注意字段名是否正确
+            port = data.get("slave_port")
+
+            # 检查必要字段是否存在
+            if not host or not port:
+                return HttpResponse(json.dumps({"error": "Missing required fields"}), content_type="application/json", status=400)
+
+            # 启动线程
+            tcp_client_thread = threading.Thread(target=send_shared_key, args=(host, int(port)))
+            tcp_client_thread.start()
+
+            return HttpResponse(json.dumps(result), content_type="application/json", status=200)
+        except json.JSONDecodeError as e:
+            return HttpResponse(json.dumps({"error": "Invalid JSON data"}), content_type="application/json", status=400)
+        except Exception as e:
+            return HttpResponse(json.dumps({"error": str(e)}), content_type="application/json", status=500)
+    else:
+        return HttpResponse(json.dumps({"error": "Invalid request method"}), content_type="application/json", status=405)
