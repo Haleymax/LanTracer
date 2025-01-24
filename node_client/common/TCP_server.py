@@ -47,7 +47,7 @@ class TCPServer:
                     break
                 print(f"收到来自客户端的数据: {data}")
                 with KeyStore() as store:
-                    store.update_key("secret", data)
+                    store.insert_key("secret", data)
                 response = "success"
                 client_socket.sendall(response.encode('utf-8'))
                 print("已发送确认消息")
