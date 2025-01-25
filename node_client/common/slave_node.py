@@ -5,11 +5,11 @@ import urllib
 
 from urllib import request, parse
 
+from common.KeyStore import KeyStore
+from common.TCP_server import TCPServer
 from common.aes_encryption import encrypt
-from node_client.common.KeyStore import KeyStore
-from node_client.common.TCP_server import TCPServer
-from node_client.common.device_info import DeviceInfo
-from node_client.config.config import tcp_port, get_key_api, check_api
+from common.device_info import DeviceInfo
+from config.config import tcp_port, get_key_api, check_api
 
 
 def send_init_request_decorator(func):

@@ -1,9 +1,8 @@
 import logging
 import socket
 
-from node_client.common.KeyStore import KeyStore
-from node_client.common.device_info import DeviceInfo
-from node_client.config.config import tcp_port
+from common.device_info import DeviceInfo
+from config.config import tcp_port
 
 
 class TCPServer:
