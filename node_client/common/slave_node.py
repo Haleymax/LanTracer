@@ -125,12 +125,13 @@ class SlaveNode:
                     'used_space': encrypt(used_space, self.shared_key),
                     'total_space': encrypt(total_space, self.shared_key)
                 }
-                data = parse.urlencode(message_data).encode('utf-8')
-                req = request.Request(check_api, data=data, method='POST')
-                response = request.urlopen(req)
-
-                result = response.read().decode('utf-8')
-                print(result)
+                data = json.dumps(message_data).encode('utf-8')
+                headers = {'Content-Type': 'application/json'}
+                req = request.Request(url=check_api, data=data, headers=headers, method='POST')
+                with urllib.request.urlopen(req) as response:
+                    if response.code == 200:
+                        response_data = response.read().decode('utf-8')
+                        print(f"请求发送成功:{response_data}")
             except Exception as e:
                 print(f"error:{e}")
             finally:
