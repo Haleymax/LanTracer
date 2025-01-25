@@ -2,6 +2,8 @@ import logging
 import socket
 
 from common.device_info import DeviceInfo
+
+from common.KeyStore import KeyStore
 from config.config import tcp_port
 
 

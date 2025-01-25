@@ -4,11 +4,11 @@ import threading
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from common.aes_encryption import get_key
+from common.aes_encryption import get_key, decrypt
 from common.logger import logger
 from common.tcp_client import TCPClient
 from core.tcp_send_key import send_shared_key
-from device.models import SharedKey
+from device.models import SharedKey, Node
 
 
 # Create your views here.
@@ -61,13 +61,45 @@ def init(request):
         result["success"] = False
         return HttpResponse(json.dumps(result), content_type="application/json", status=201)
 
-
+@csrf_exempt
 def check(request):
     result = {}
     if request.method == "POST":
-        host = request.POST['host']
-        used_space = request.POST['used_space']
-        return HttpResponse(json.dumps(result), content_type="application/json", status=200)
+        try:
+            if not request.body:
+                return HttpResponse(json.dumps({"error":"Empty request body"}), content_type="application/json", status=400)
+
+            key = SharedKey.objects.get(key="shared_key")
+            data = json.loads(request.body)
+            host = decrypt(ciphertext=data.get('host'), key=key)
+            used_space = decrypt(ciphertext=data.get('used_space'), key=key)
+            total_space = decrypt(ciphertext=data.get('total_space'), key=key)
+            remaining_menory = total_space - used_space
+
+            # 判断节点信息是否存在
+            node_info = Node.objects.filter(ip_address=host).first()
+            if not node_info:
+                node_info = Node.objects.create(ip_address=host, name=host, total_menory=total_space, remaining_menory=remaining_menory, state="online")
+            else:
+                # 节点若是存在，就更新信息
+                node_info.ip_address = host
+                node_info.name = host
+                node_info.total_menory = total_space
+                node_info.remaining_menory = remaining_menory
+                node_info.state = "online"
+            node_info.save()
+            node_info = Node(ip_address=host, node_name=host, total_menory=total_space, remaining_menory=remaining_menory, state="online")
+            node_info.save()
+            result["success"] = True
+            return HttpResponse(json.dumps(result), content_type="application/json", status=200)
+        except json.JSONDecodeError as e:
+            return HttpResponse(json.dumps({"error":"Invalid JSON data"}), content_type="application/json", status=400)
+        except Exception as e:
+            logger.error(f"获取节点信息发生错误:{e}")
+            return HttpResponse(json.dumps({"error":str(e)}), content_type="application/json", status=500)
+    else:
+        return HttpResponse(json.dumps({"error":"Invalid request method"}), content_type="application/json", status=405)
+
 
 @csrf_exempt
 def get_share_key(request):

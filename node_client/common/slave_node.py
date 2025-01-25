@@ -5,10 +5,12 @@ import urllib
 
 from urllib import request, parse
 
-from common.KeyStore import KeyStore
 from common.TCP_server import TCPServer
+
+from common.KeyStore import KeyStore
 from common.aes_encryption import encrypt
 from common.device_info import DeviceInfo
+
 from config.config import tcp_port, get_key_api, check_api
 
 
