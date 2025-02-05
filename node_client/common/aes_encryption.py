@@ -1,7 +1,9 @@
+import base64
+
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
-import base64
+
 
 # 加密函数
 def encrypt(plain_text, key):

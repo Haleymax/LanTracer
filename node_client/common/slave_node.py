@@ -5,9 +5,11 @@ import urllib
 
 from urllib import request, parse
 
-from common.TCP_server import TCPServer
+
 
 from common.KeyStore import KeyStore
+
+from common.TCP_server import TCPServer
 from common.aes_encryption import encrypt
 from common.device_info import DeviceInfo
 
@@ -112,9 +114,10 @@ class SlaveNode:
 
 
     def _find_shared_key(self):
-        path = r"/data/keystore.db"
+        path = r"./data/keystore.db"
         with KeyStore(path) as keystore:
-            self.shared_key = keystore.get_key("api_key")
+            self.shared_key = keystore.get_key('secret')
+            print(self.shared_key)
 
     def check(self):
         self._find_shared_key()
@@ -124,8 +127,8 @@ class SlaveNode:
                 used_space, total_space = self.device.get_disk_usage()
                 message_data = {
                     'host': encrypt(localhost, self.shared_key),
-                    'used_space': encrypt(used_space, self.shared_key),
-                    'total_space': encrypt(total_space, self.shared_key)
+                    'used_space': encrypt(str(used_space), self.shared_key),
+                    'total_space': encrypt(str(total_space), self.shared_key)
                 }
                 data = json.dumps(message_data).encode('utf-8')
                 headers = {'Content-Type': 'application/json'}
@@ -137,7 +140,8 @@ class SlaveNode:
             except Exception as e:
                 print(f"error:{e}")
             finally:
-                time.sleep(60 * 30)
+                break
+                # time.sleep(60 * 30)
 
 
 if __name__ == '__main__':
