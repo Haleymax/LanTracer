@@ -100,7 +100,7 @@ class KeyStore:
         self.close()
 
 if __name__ == '__main__':
-    with KeyStore() as store:
+    with KeyStore('../data/keystore.db') as store:
         # 插入或替换密钥
         store.insert_key('api_key', '12345-ABCDE-67890')
         store.insert_key('secret_key', '98765-ZYXWV-43210')

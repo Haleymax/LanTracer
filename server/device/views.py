@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from common.aes_encryption import get_key, decrypt
+from common.file_utils import bytes_to_mb
 from common.logger import logger
 from common.tcp_client import TCPClient
 from core.tcp_send_key import send_shared_key
@@ -70,26 +71,35 @@ def check(request):
                 return HttpResponse(json.dumps({"error":"Empty request body"}), content_type="application/json", status=400)
 
             key = SharedKey.objects.get(key="shared_key")
+
+
             data = json.loads(request.body)
-            host = decrypt(ciphertext=data.get('host'), key=key)
-            used_space = decrypt(ciphertext=data.get('used_space'), key=key)
-            total_space = decrypt(ciphertext=data.get('total_space'), key=key)
+            host = decrypt(ciphertext=data.get('host'), key=key.value)
+            used_space = int(decrypt(ciphertext=data.get('used_space'), key=key.value))/1024/1024
+            total_space = int(decrypt(ciphertext=data.get('total_space'), key=key.value))/1024/1024
             remaining_menory = total_space - used_space
 
             # 判断节点信息是否存在
-            node_info = Node.objects.filter(ip_address=host).first()
-            if not node_info:
-                node_info = Node.objects.create(ip_address=host, name=host, total_menory=total_space, remaining_menory=remaining_menory, state="online")
-            else:
-                # 节点若是存在，就更新信息
-                node_info.ip_address = host
-                node_info.name = host
-                node_info.total_menory = total_space
-                node_info.remaining_menory = remaining_menory
-                node_info.state = "online"
-            node_info.save()
-            node_info = Node(ip_address=host, node_name=host, total_menory=total_space, remaining_menory=remaining_menory, state="online")
-            node_info.save()
+            try:
+                node_info, created = Node.objects.get_or_create(
+                    ip_address=host,
+                    defaults={
+                        'node_name': host,
+                        'total_menory': total_space,
+                        'remaining_menory': remaining_menory,
+                        'state': "online"
+                    }
+                )
+                if not created:
+                    # 如果对象已经存在，更新信息
+                    node_info.node_name = host
+                    node_info.total_menory = total_space
+                    node_info.remaining_menory = remaining_menory
+                    node_info.state = "online"
+                    node_info.save()  # 保存更新后的信息
+            except Exception as e:
+                # 处理可能出现的异常，例如数据库连接错误等
+                print(f"处理节点信息时出现错误: {e}")
             result["success"] = True
             return HttpResponse(json.dumps(result), content_type="application/json", status=200)
         except json.JSONDecodeError as e:

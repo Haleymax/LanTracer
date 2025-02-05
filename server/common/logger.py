@@ -14,8 +14,8 @@ class Logger:
         self.logger = logging.getLogger(name)
         self.logger.setLevel(log_level)
 
-        # 日志格式
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        # 日志格式，添加了文件名和行号信息
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s")
 
         # 输出到终端
         stream_handler = logging.StreamHandler(sys.stdout)
@@ -47,6 +47,6 @@ class Logger:
     def error(self, message):
         """记录 ERROR 级别的日志"""
         self.logger.error(message)
-        self.logger.error(message)
+
 
 logger = Logger("Server").logger

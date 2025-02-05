@@ -22,4 +22,5 @@ import device.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('getkey', device.views.get_share_key),
+    path('check', device.views.check),
 ]
