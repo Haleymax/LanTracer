@@ -14,7 +14,7 @@
 
 <script setup lang="ts" name="Home">
 import { ElContainer, ElAside, ElHeader, ElMain } from 'element-plus';
-import Menu from '@/components/Menu.vue';
+
 
 </script>
 
