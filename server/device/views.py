@@ -1,15 +1,17 @@
 import json
 import threading
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from common.aes_encryption import get_key, decrypt
-from common.file_utils import bytes_to_mb
-from common.logger import logger
 from common.tcp_client import TCPClient
+
+from common.logger import logger
 from core.tcp_send_key import send_shared_key
-from device.models import SharedKey, Node
+from device.models import SharedKey, Node, Device
+from device.response_model import DeviceResponse
 
 
 # Create your views here.
@@ -140,3 +142,27 @@ def get_share_key(request):
             return HttpResponse(json.dumps({"error": str(e)}), content_type="application/json", status=500)
     else:
         return HttpResponse(json.dumps({"error": "Invalid request method"}), content_type="application/json", status=405)
+
+@csrf_exempt  # 如果需要禁用 CSRF 验证，可以保留这个装饰器
+@require_http_methods(["GET"])
+def get_device(request):
+    device_response = DeviceResponse(status=False, message="no message")
+
+    try:
+        device_list =  []
+        devices = Device.objects.all()
+        for device in devices:
+            one_record = {
+                "host": device.ip_address,
+                "name": device.node_name,
+            }
+            device_list.append(one_record)
+        device_response.status = True
+        device_response.message = device_list
+    except Exception as e:
+        logger.error(e)
+        device_response.message = f"an error occurred during the query:{e}"
+        return JsonResponse(device_response.dict(), status=500)
+    return JsonResponse(device_response.dict(), status=200 )
+
+
