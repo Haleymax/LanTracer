@@ -20,8 +20,9 @@
 </template>
 
 <script setup lang="ts" name="Device">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useDeviceStore } from '@/store/device'
+import { getDevice } from '@/api/get_device'
 
 const deviceStore = useDeviceStore()
 
@@ -35,6 +36,22 @@ const hostRules = [
 const dayRules = [
   (v: string) => !!v || 'Last name is required',
 ]
+
+const fetchDevices = async () => {
+  const url = "/api/get_devices"
+  const response = await getDevice(url)
+  console.log(response)
+  if (response.status){
+      const deviceData = response.device.message
+      deviceData.forEach(( device:string,  ipaddress:string) => {
+        deviceStore.setDevice(device, ipaddress)
+      })
+  }
+}
+
+onMounted(() => {
+  fetchDevices()
+})
 
 
 </script>

@@ -9,6 +9,7 @@ interface GetDeviceResponse {
 export const getDevice = async (url: string): Promise<GetDeviceResponse> => {
   try {
     const response: AxiosResponse = await axios.get(url);
+    console.log('data :', response.data);
     return {
       device: response.data,
       status: true,
