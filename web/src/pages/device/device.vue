@@ -38,14 +38,14 @@ const dayRules = [
 ]
 
 const fetchDevices = async () => {
-  const url = "/api/get_devices"
+  const url = "/get_devices"
   const response = await getDevice(url)
   console.log(response)
-  if (response.status){
-      const deviceData = response.device.message
-      deviceData.forEach(( device:string,  ipaddress:string) => {
-        deviceStore.setDevice(device, ipaddress)
-      })
+  if (response.status) {
+    const deviceData = response.message
+    deviceData.forEach((device: { host: string, name: string }) => {
+      deviceStore.setDevice(device.name, device.host)
+    })
   }
 }
 
