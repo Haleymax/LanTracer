@@ -8,12 +8,18 @@
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import Device from '@/pages/device/device.vue'
 import Index from '@/pages/index.vue'
+import Home from '@/pages/home.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Index',
     component: Index,
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: Home,
   },
   {
     path: '/device',
