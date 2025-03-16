@@ -1,5 +1,6 @@
 import json
 import threading
+import ipaddress
 
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +12,7 @@ from common.tcp_client import TCPClient
 from common.logger import logger
 from core.tcp_send_key import send_shared_key
 from device.models import SharedKey, Node, Device
-from device.response_model import DeviceResponse
+from device.response_model import DeviceResponse, BaseResponse
 
 
 # Create your views here.
@@ -165,4 +166,38 @@ def get_device(request):
         return JsonResponse(device_response.dict(), status=500)
     return JsonResponse(device_response.dict(), status=200 )
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def add_device(request):
+    response = BaseResponse(status=False, message="")
+    try:
+        data = json.loads(request.body)
+        ip_address = data.get("ip_address")
+        node_name = data.get("node_name")
+
+        # 检验ip地址是否合法
+        try:
+            ipaddress.ip_address(ip_address)
+        except ValueError:
+            erro_info = "Invalid IP address"
+            logger.error(erro_info)
+            response.message = erro_info
+            return JsonResponse(response.dict(), status=500)
+
+        # 节点名字不能为空
+        if node_name:
+            response.message = "Node name cannot be empty"
+            return JsonResponse(response.dict(), status=500)
+
+
+        device = Device(ip_address=ip_address, node_name=node_name)
+        device.full_clean()
+        device.save()
+        response.status = True
+        response.message = f"Node {node_name}:{ip_address} was added successfully"
+        return JsonResponse(response.dict(), status=200)
+    except Exception as e:
+        logger.error(e)
+        response.message = f"an error occurred during the add device :{e}"
+        return JsonResponse(response.dict(), status=500)
 
