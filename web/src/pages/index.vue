@@ -22,12 +22,12 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item to="/add_device">
           <v-list-item-icon>
             <v-icon>mdi-usb</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>adb连接信息</v-list-item-title>
+            <v-list-item-title>添加设备</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
