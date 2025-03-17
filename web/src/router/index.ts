@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from 'vue-router/auto'
 import Device from '@/pages/device/device.vue'
 import Index from '@/pages/index.vue'
 import Home from '@/pages/home.vue'
+import AddDevice from '@/pages/device/add_device.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/device',
     name: 'Device',
     component: Device,
+  },
+  {
+    path: '/add_device',
+    name: 'AddDevice',
+    component: AddDevice,
   }
 ]
 
