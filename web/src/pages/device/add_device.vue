@@ -36,7 +36,7 @@ const submit = async () => {
       name: name.value
     }
 
-    const url:string = '/add_device'
+    const url:string = "device/add_device"
 
     try {
       const response = await addDevice(url, data)

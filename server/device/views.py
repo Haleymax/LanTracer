@@ -1,4 +1,5 @@
 import json
+import socket
 import threading
 import ipaddress
 
@@ -172,12 +173,13 @@ def add_device(request):
     response = BaseResponse(status=False, message="")
     try:
         data = json.loads(request.body)
-        ip_address = data.get("ip_address")
-        node_name = data.get("node_name")
+        ip_address = data.get("host")
+        node_name = data.get("name")
 
         # 检验ip地址是否合法
         try:
             ipaddress.ip_address(ip_address)
+            print(ip_address)
         except ValueError:
             erro_info = "Invalid IP address"
             logger.error(erro_info)
@@ -185,7 +187,7 @@ def add_device(request):
             return JsonResponse(response.dict(), status=500)
 
         # 节点名字不能为空
-        if node_name:
+        if not node_name:
             response.message = "Node name cannot be empty"
             return JsonResponse(response.dict(), status=500)
 
