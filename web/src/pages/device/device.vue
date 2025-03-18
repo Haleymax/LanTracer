@@ -38,7 +38,7 @@ const dayRules = [
 ]
 
 const fetchDevices = async () => {
-  const url = "/get_devices"
+  const url = "device/get_devices"
   const response = await getDevice(url)
   console.log(response)
   if (response.status) {
