@@ -16,13 +16,16 @@
         </v-col>
       </v-row>
     </v-container>
+    <div ref="DevicesInformation" class="chart-container"></div>
   </v-form>
+
 </template>
 
 <script setup lang="ts" name="Device">
 import { computed, onMounted, ref } from 'vue'
 import { useDeviceStore } from '@/store/device'
 import { getDevice } from '@/api/get_device'
+import * as echarts from 'echarts'
 
 const deviceStore = useDeviceStore()
 
@@ -30,9 +33,9 @@ const valid = ref(true)
 const host = ref('')
 const day = ref('')
 const devices = computed(() => deviceStore.getDeviceList())
-const hostRules = [
-  (v: string) => !!v || '主机地址不能为空',
-]
+
+const DevicesInformation = ref<HTMLDivElement>();
+
 const dayRules = [
   (v: string) => !!v || 'Last name is required',
 ]
@@ -49,9 +52,39 @@ const fetchDevices = async () => {
   }
 }
 
+const initChart = () => {
+  const Chart = echarts.init(DevicesInformation.value);
+  const option = {
+    title: {
+      text: 'ECharts 入门示例'
+    },
+    tooltip: {},
+    legend: {
+      data: ['销量']
+    },
+    xAxis: {
+      data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+    },
+    yAxis: {},
+    series: [{
+      name: '销量',
+      type: 'bar',
+      data: [5, 20, 36, 10, 10, 20]
+    }]
+  };
+  Chart.setOption(option);
+}
+
 onMounted(() => {
   fetchDevices()
+  initChart()
 })
 
-
 </script>
+
+<style scoped>
+.chart-container {
+    width: 500px;
+    height: 500px;
+}
+</style>
