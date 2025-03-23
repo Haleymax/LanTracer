@@ -1,7 +1,7 @@
 import json
-import socket
 import threading
 import ipaddress
+import time
 
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +11,7 @@ from common.aes_encryption import get_key, decrypt
 from common.tcp_client import TCPClient
 
 from common.logger import logger
+from core.redis_client import RedisClient
 from core.tcp_send_key import send_shared_key
 from device.models import SharedKey, Node, Device
 from device.response_model import DeviceResponse, BaseResponse
@@ -104,6 +105,16 @@ def check(request):
             except Exception as e:
                 # 处理可能出现的异常，例如数据库连接错误等
                 print(f"处理节点信息时出现错误: {e}")
+            finally:
+                key = host
+                insert_data = {
+                    "total_menory": total_space,
+                    "remaining_menory": total_space - used_space,
+                    "time":time.time()
+                }
+                redis_client = RedisClient()
+                redis_client.add_sorted_set(key=key, data=insert_data)
+                redis_client.delete_sorted_set_by_day(key=key, days=7)
             result["success"] = True
             return HttpResponse(json.dumps(result), content_type="application/json", status=200)
         except json.JSONDecodeError as e:
