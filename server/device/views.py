@@ -12,6 +12,7 @@ from common.tcp_client import TCPClient
 
 from common.logger import logger
 from core.redis_client import RedisClient
+from core.ssh_client import RemoteClient
 from core.tcp_send_key import send_shared_key
 from device.models import SharedKey, Node, Device
 from device.response_model import DeviceResponse, BaseResponse, MemoryInfoResponse
@@ -185,13 +186,14 @@ def add_device(request):
     response = BaseResponse(status=False, message="")
     try:
         data = json.loads(request.body)
-        ip_address = data.get("host")
+        host = data.get("host")
         node_name = data.get("name")
+        user = data.get("user")
+        password = data.get("password")
 
         # 检验ip地址是否合法
         try:
-            ipaddress.ip_address(ip_address)
-            print(ip_address)
+            ipaddress.ip_address(host)
         except ValueError:
             erro_info = "Invalid IP address"
             logger.error(erro_info)
@@ -203,12 +205,17 @@ def add_device(request):
             response.message = "Node name cannot be empty"
             return JsonResponse(response.dict(), status=500)
 
-
-        device = Device(ip_address=ip_address, node_name=node_name)
+        remote_client = RemoteClient(host=host, port=22, username=user, password=password)
+        connect_ret, msg = remote_client.connect()
+        if not connect_ret:
+            response.message = msg
+            return JsonResponse(response.dict(), status=500)
+        remote_client.disconnect()
+        device = Device(ip_address=host, node_name=node_name)
         device.full_clean()
         device.save()
         response.status = True
-        response.message = f"Node {node_name}:{ip_address} was added successfully"
+        response.message = f"Node {node_name}:{host} was added successfully"
         return JsonResponse(response.dict(), status=200)
     except Exception as e:
         logger.error(e)
