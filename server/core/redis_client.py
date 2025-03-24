@@ -1,20 +1,23 @@
+import json
 import time
 
 import redis
 from django.conf import settings
+from django.db.models.expressions import result
 
 from common.logger import logger
 
 
 class RedisClient:
     def __init__(self):
-        self.client = redis.StrictRedis.from_url(settings.REDIS_URL)
+        # self.client = redis.StrictRedis.from_url(settings.REDIS_URL)
+        self.client = redis.StrictRedis.from_url('redis://127.0.0.1:6380/1')
 
-    def add_sorted_set(self, key, data):
+    def add_sorted_set(self, key, member):
         """
         添加元素到有序集合
         """
-        self.client.zadd(key, data)
+        self.client.zadd(key, member)
 
     def get_all_sorted_set(self, key, withscores=True):
         """

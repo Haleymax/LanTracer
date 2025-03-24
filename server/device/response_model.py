@@ -1,4 +1,4 @@
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Any
 
 from pydantic import BaseModel
 
@@ -8,4 +8,9 @@ class DeviceResponse(BaseModel):
 
 class BaseResponse(BaseModel):
     status: bool
+    message: str
+
+class MemoryInfoResponse(BaseModel):
+    status: bool
+    data: list[Any]
     message: str
