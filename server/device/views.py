@@ -14,7 +14,7 @@ from common.logger import logger
 from core.redis_client import RedisClient
 from core.tcp_send_key import send_shared_key
 from device.models import SharedKey, Node, Device
-from device.response_model import DeviceResponse, BaseResponse
+from device.response_model import DeviceResponse, BaseResponse, MemoryInfoResponse
 
 
 # Create your views here.
@@ -113,7 +113,8 @@ def check(request):
                     "time":time.time()
                 }
                 redis_client = RedisClient()
-                redis_client.add_sorted_set(key=key, data=insert_data)
+                json_data = json.dumps(insert_data)
+                redis_client.add_sorted_set(key=key, member={json_data:insert_data['time']})
                 redis_client.delete_sorted_set_by_day(key=key, days=7)
             result["success"] = True
             return HttpResponse(json.dumps(result), content_type="application/json", status=200)
@@ -156,7 +157,7 @@ def get_share_key(request):
     else:
         return HttpResponse(json.dumps({"error": "Invalid request method"}), content_type="application/json", status=405)
 
-@csrf_exempt  # 如果需要禁用 CSRF 验证，可以保留这个装饰器
+@csrf_exempt
 @require_http_methods(["GET"])
 def get_device(request):
     device_response = DeviceResponse(status=False, message="no message")
@@ -214,3 +215,33 @@ def add_device(request):
         response.message = f"an error occurred during the add device :{e}"
         return JsonResponse(response.dict(), status=500)
 
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_memory_info(request):
+    response = MemoryInfoResponse(status=False, data=[], message="")
+    try:
+        data = json.loads(request.body)
+        host = data.get("host")
+        days = data.get("days")
+        memory_info = []
+        redis_client = RedisClient()
+
+        if days is 0:
+            memory_datas = redis_client.get_all_sorted_set(key=host, withscores=True)
+        else:
+            memory_datas = redis_client.get_range_sorted_set_by_days(key=host, days=int(days), withscores=True)
+        # 序列化json字符串
+        for memory_data in memory_datas:
+            json_str = memory_data[0].decode("utf-8")
+            json_dict = json.loads(json_str)
+            memory_info.append(json_dict)
+        response.status = True
+        response.data = memory_info
+        response.message = "successfully query data"
+        redis_client.delete_sorted_set_by_day(key=host)
+        return JsonResponse(response.dict(), status=200)
+    except Exception as e:
+        logger.error(e)
+        response.message = f"an error occurred during the get memory info :{e}"
+        return JsonResponse(response.dict(), status=500)
