@@ -12,7 +12,7 @@
           <v-text-field v-model="day" :counter="10" :rules="dayRules" label="天数" hide-details required></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-btn class="mt-2" type="submit" block>查询</v-btn>
+          <v-btn class="mt-2" type="submit" block @click="submit">查询</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts" name="Device">
-import { computed, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useDeviceStore } from '@/store/device'
-import { getDevice } from '@/api/get_device'
+import { getDevice, getDeviceMemory } from '@/api/get_device'
 import * as echarts from 'echarts'
 
 const deviceStore = useDeviceStore()
@@ -52,11 +52,26 @@ const fetchDevices = async () => {
   }
 }
 
+
+const submit = async () => {
+  const url: string = "device/get_device_info"
+
+  try {
+    const response = await getDeviceMemory(url, host.value, day.value)
+    if (response.status) {
+      console.log(response.message)
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
 const initChart = () => {
   const Chart = echarts.init(DevicesInformation.value);
   const option = {
     title: {
-      text: 'ECharts 入门示例'
+      text: '内存使用情况'
     },
     tooltip: {},
     legend: {
