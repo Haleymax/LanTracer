@@ -1,6 +1,5 @@
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
-import { ca } from 'vuetify/locale';
 
 interface GetDeviceResponse {
   message: { host: string, name: string }[];
@@ -30,11 +29,11 @@ export const getDevice = async (url: string): Promise<GetDeviceResponse> => {
 }
 
 
-export const getDeviceMemory = async (url: string, host: string, day: string): Promise<GetMemoryRequest> => {
+export const getDeviceMemory = async (url: string, host: string, days: string): Promise<GetMemoryRequest> => {
   try {
     const data = {
       host: host,
-      day: day
+      days: days
     }
     const response: AxiosResponse = await axios.post(url, data);
     return {
