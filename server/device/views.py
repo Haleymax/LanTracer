@@ -229,7 +229,7 @@ def get_memory_info(request):
     response = MemoryInfoResponse(status=False, data=[], message="")
     try:
         data = json.loads(request.body)
-        host = data.get("host")
+        host = data.get("host")[1]
         days = data.get("days")
         memory_info = []
         redis_client = RedisClient()

@@ -18,10 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 import device.views
+from device import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('getkey', device.views.get_share_key),
     path('check', device.views.check),
     path('device/', include('device.urls')),
+    path('get_menory', views.get_memory_info),
 ]

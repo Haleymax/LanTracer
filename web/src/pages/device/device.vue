@@ -4,15 +4,18 @@
       <v-row>
         <v-col cols="12" md="4">
           <v-combobox clearable label="主机地址"
-            :items=devices>
+            :items="Array.from(devices)"
+            item-title="name"
+            item-value="host"
+            v-model="host">
           </v-combobox>
         </v-col>
 
         <v-col cols="12" md="4">
-          <v-text-field v-model="day" :counter="10" :rules="dayRules" label="天数" hide-details required></v-text-field>
+          <v-text-field v-model="days" :counter="10" :rules="dayRules" label="天数" hide-details required></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-btn class="mt-2" type="submit" block @click="submit">查询</v-btn>
+          <v-btn class="mt-2" type="button" block @click="submit">查询</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -22,7 +25,7 @@
 </template>
 
 <script setup lang="ts" name="Device">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useDeviceStore } from '@/store/device'
 import { getDevice, getDeviceMemory } from '@/api/get_device'
 import * as echarts from 'echarts'
@@ -31,7 +34,7 @@ const deviceStore = useDeviceStore()
 
 const valid = ref(true)
 const host = ref('')
-const day = ref('')
+const days = ref('')
 const devices = computed(() => deviceStore.getDeviceList())
 
 const DevicesInformation = ref<HTMLDivElement>();
@@ -39,6 +42,8 @@ const DevicesInformation = ref<HTMLDivElement>();
 const dayRules = [
   (v: string) => !!v || 'Last name is required',
 ]
+
+
 
 const fetchDevices = async () => {
   const url = "device/get_devices"
@@ -54,52 +59,72 @@ const fetchDevices = async () => {
 
 
 const submit = async () => {
-  const url: string = "device/get_device_info"
-
+  const url2: string = "device/get_menory";
+  console.log(host.value, days.value);
   try {
-    const response = await getDeviceMemory(url, host.value, day.value)
+    const response = await getDeviceMemory(url2, host.value, days.value);
     if (response.status) {
-      console.log(response.message)
+      console.log(response.message);
+
+      const data = response.data;
+      const times = data.map((item: { time: number }) => new Date(item.time * 1000).toLocaleTimeString());
+      const totalMemory = data.map((item: { total_menory: number }) => item.total_menory);
+      const remainingMemory = data.map((item: { remaining_menory: number }) => item.remaining_menory);
+
+      const Chart = echarts.init(DevicesInformation.value);
+      const option = {
+        title: {
+          text: '内存使用情况'
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        legend: {
+          data: ['总内存', '剩余内存']
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: times
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            formatter: '{value} MB'
+          }
+        },
+        series: [
+          {
+            name: '总内存',
+            type: 'line',
+            data: totalMemory
+          },
+          {
+            name: '剩余内存',
+            type: 'line',
+            data: remainingMemory
+          }
+        ]
+      };
+      Chart.setOption(option);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
-
-const initChart = () => {
-  const Chart = echarts.init(DevicesInformation.value);
-  const option = {
-    title: {
-      text: '内存使用情况'
-    },
-    tooltip: {},
-    legend: {
-      data: ['销量']
-    },
-    xAxis: {
-      data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
-    },
-    yAxis: {},
-    series: [{
-      name: '销量',
-      type: 'bar',
-      data: [5, 20, 36, 10, 10, 20]
-    }]
-  };
-  Chart.setOption(option);
-}
 
 onMounted(() => {
   fetchDevices()
-  initChart()
 })
 
 </script>
 
 <style scoped>
 .chart-container {
-    width: 500px;
-    height: 500px;
+    width: 100%;
+    max-width: 1800px;
+    height: 600px;
+    margin: 0 auto;
 }
 </style>
