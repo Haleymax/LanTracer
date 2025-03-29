@@ -11,3 +11,4 @@ server/device/__pycache__
 server/device/migrations/__pycache__
 node_client/config/__pycache__
 server/core/__pycache__
+.venv
