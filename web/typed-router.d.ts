@@ -21,6 +21,7 @@ declare module 'vue-router/auto-routes' {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/device/add_device': RouteRecordInfo<'/device/add_device', '/device/add_device', Record<never, never>, Record<never, never>>,
     '/device/device': RouteRecordInfo<'/device/device', '/device/device', Record<never, never>, Record<never, never>>,
+    '/device/device_manage': RouteRecordInfo<'/device/device_manage', '/device/device_manage', Record<never, never>, Record<never, never>>,
     '/home': RouteRecordInfo<'/home', '/home', Record<never, never>, Record<never, never>>,
   }
 }

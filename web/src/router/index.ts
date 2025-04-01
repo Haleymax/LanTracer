@@ -10,6 +10,7 @@ import Device from '@/pages/device/device.vue'
 import Index from '@/pages/index.vue'
 import Home from '@/pages/home.vue'
 import AddDevice from '@/pages/device/add_device.vue'
+import DeviceManage from '@/pages/device/device_manage.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     path: '/add_device',
     name: 'AddDevice',
     component: AddDevice,
+  },
+  {
+    path: '/devicemanagement',
+    name: 'DeviceManagement',
+    component: DeviceManage,
   }
 ]
 
