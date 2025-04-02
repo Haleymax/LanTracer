@@ -6,6 +6,7 @@ import time
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.db import transaction
 
 from common.aes_encryption import get_key, decrypt
 from common.tcp_client import TCPClient
@@ -251,4 +252,25 @@ def get_memory_info(request):
     except Exception as e:
         logger.error(e)
         response.message = f"an error occurred during the get memory info :{e}"
+        return JsonResponse(response.dict(), status=500)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_device(request, host):
+    response = BaseResponse(status=False, message="")
+    try:
+        with transaction.atomic():
+            device = Device.objects.get(ip_address=host)
+            device.delete()
+            node = Node.objects.get(ip_address=host)
+            node.delete()
+            ret_message = f"successfully deleted device {host}"
+            logger.info(ret_message)
+            response.status = True
+            response.message = ret_message
+        return JsonResponse(response.dict(), status=200)
+    except Exception as e:
+        logger.error(e)
+        response.message = f"an error occurred during the delete device :{e}"
         return JsonResponse(response.dict(), status=500)
