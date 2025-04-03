@@ -13,9 +13,9 @@ class RemoteClient:
         self._username = username
         self._password = password
 
-    def connect(self):
+    def connect(self, timeout=5):
         try:
-            self.client.connect(hostname=self.host, port=self.port, username=self._username, password=self._password)
+            self.client.connect(hostname=self.host, port=self.port, username=self._username, password=self._password, timeout=timeout)
             logger.info(f"establish a connection with {self.host}:{self.port}")
             return True, ""
         except Exception as e:

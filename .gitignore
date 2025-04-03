@@ -11,4 +11,11 @@ server/device/__pycache__
 server/device/migrations/__pycache__
 node_client/config/__pycache__
 server/core/__pycache__
+testing/config/__pycache__
+testing/core/__pycache__
+testing/data/__pycache__
+testing/testcases/__pycache__
+testing/testcases/test_api_device/__pycache__
+testing/log
 .venv
+testing/data/api_data.yml

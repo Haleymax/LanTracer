@@ -277,12 +277,16 @@ def delete_device(request):
         try:
             device = Device.objects.get(ip_address=host)
             device.delete()
-            node = Node.objects.get(ip_address=host)
-            node.delete()
+            node = Node.objects.filter(ip_address=host)
+            if node.exists():
+                logger.info(f"delete oder by {host}")
+                node.delete()
+
             redis_client = RedisClient()
-            ret, ret_msg = redis_client.delete_key(host)
-            if not ret:
-                raise ret_msg
+            if redis_client.key_exists(host):
+                ret, ret_msg = redis_client.delete_key(host)
+                if not ret:
+                  raise ret_msg
             transaction.commit()
             ret_message = f"successfully deleted device {host}"
             logger.info(ret_message)
