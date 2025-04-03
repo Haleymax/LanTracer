@@ -1,5 +1,5 @@
-import json
 import re
+import time
 
 import requests
 
@@ -19,56 +19,40 @@ class Sender:
         self.session = requests.Session()
         self.response = None
         self.result = None
+        self.request_time = None
 
     def get(self, url, params=None, headers=None):
         try:
+            start_time = time.time()
             self.response = self.session.get(url, params=params, headers=headers)
+            end_time = time.time()
+            self.request_time = end_time - start_time
             logger.info(f"successful send get request to : {url}")
         except Exception as e:
             logger.info(f"request failed : {e}")
 
-    def post(self, url, params=None, data=None, headers=None):
+    def post(self, url, params=None, data=None, json=None, headers=None):
         try:
-            self.response = self.session.post(url, params=params, json=data, headers=headers)
+            start_time = time.time()
+            self.response = self.session.post(
+                url,
+                params=params,
+                data=data,
+                json=json,
+                headers=headers
+            )
+            end_time = time.time()
             logger.info(f"successful send post request to : {url}")
+            self.result = self.response.json()
+            self.request_time = end_time - start_time
+            return True  # 或者返回 self.response
         except Exception as e:
-            logger.info(f"request failed : {e}")
+            logger.error(f"request failed : {e}")  # 错误级别建议用 error
+            return False  # 或者 raise 重新抛出异常
 
     def check_status(self):
         """
         检查修改是否成功
-        :return:
+        :return: HTTP 状态码
         """
-        if self.response.status_code == 200:
-            if not self.result:
-                return False
-            else:
-                return True
-        else:
-            return False
-
-    def check_parameters(self, rate:str, loss:int, ipaddress:str):
-        """
-        检查参数是否符合要求
-        :param rate:
-        :param loss:
-        :param ipaddress:
-        :return:
-        """
-        if not isinstance(rate, str):
-            raise TypeError("rate must be a string")
-        if not isinstance(loss, int):
-            raise TypeError("loss must be an integer")
-        if not isinstance(ipaddress, str):
-            raise TypeError("ipaddress must be a string")
-
-        data = self.response['message'][self.response['interface']]['outgoing']
-        result = False
-        for key, value in data.items():
-            ipaddr = extract_ip_address(key)
-            if ipaddr == ipaddress:
-                if 'loss' in value and 'rate' in value:
-                    value['loss'] = loss
-                    value['rate'] = rate
-                    result = True
-        return result
+        return self.result["status"]

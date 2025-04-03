@@ -1,5 +1,10 @@
+import os
 
-HOST = "10.86.97.157"
+BASE_PATH = os.path.dirname(os.path.dirname(__file__))
 
-PORT = 8080
 
+YAML_FILE_PATH = os.path.join(BASE_PATH, "data", "api_data.yml")
+
+HSOT = "127.0.0.1"
+
+PORT = 8888

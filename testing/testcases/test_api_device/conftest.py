@@ -1,12 +1,19 @@
-from testing.core.api_data import ApiData
-from testing.testcases.conftest import get_case_num
+import pytest
 
-URL = "http://127.0.0.1:8000/tc"
+from config import setting
+from data.generate_case import generate_case
 
 
-def generate_tests(case_num):
-    api = ApiData(collection="tc")
-    datas = api.create_game_list(case_num)
-    return datas
+@pytest.fixture(scope="session")
+def url():
+    url = f'testscripts/audio/test.js'
+    return url
 
-post_data = generate_tests(get_case_num)
+@pytest.fixture(scope="session")
+def add_device_url(url):
+    host = setting.HSOT
+    port = setting.PORT
+    url = f'http://{host}:{port}/device/add_device'
+    return url
+
+api_case = generate_case(setting.YAML_FILE_PATH)

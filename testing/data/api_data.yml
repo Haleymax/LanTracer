@@ -1,0 +1,6 @@
+add_device:
+  - [ "10.86.97.112", "WEBGLHOST-MacMini-02", "u3d", "Unity@124"]
+  - [ "10.86.98.70", "WEBGLHOST-MacMini-03", "u3d", "Unity@124" ]
+  - [ "10.86.97.42", "WEBGLHOST-MacMini-04", "u3d", "Unity@124" ]
+  - [ "10.86.112.59", "mac-mini-08", "u3d", "#Bugsfor$" ]
+  - [ "10.86.112.60", "mac-mini-09", "sadad", "asdasdasda" ]
