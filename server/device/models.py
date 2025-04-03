@@ -25,6 +25,13 @@ class Device(models.Model):
     def __str__(self):
         return self.node_name
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ip_address': self.ip_address,
+            'node_name': self.node_name,
+        }
+
 class SharedKey(models.Model):
     id = models.AutoField(primary_key=True)
     key = models.CharField(max_length=50, unique=True)
