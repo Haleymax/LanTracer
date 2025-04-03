@@ -17,3 +17,4 @@ testing/data/__pycache__
 testing/testcases/__pycache__
 testing/testcases/test_api_device/__pycache__
 testing/log
+.venv

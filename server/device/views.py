@@ -6,6 +6,7 @@ import time
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.db import transaction
 
 from common.aes_encryption import get_key, decrypt
 from common.tcp_client import TCPClient
@@ -161,6 +162,9 @@ def get_share_key(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_device(request):
+    """
+    获取设备
+    """
     device_response = DeviceResponse(status=False, message="no message")
 
     try:
@@ -183,6 +187,9 @@ def get_device(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_device(request):
+    """
+    添加新的节点
+    """
     response = BaseResponse(status=False, message="")
     try:
         data = json.loads(request.body)
@@ -226,10 +233,13 @@ def add_device(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def get_memory_info(request):
+    """
+    获取节点磁盘信息
+    """
     response = MemoryInfoResponse(status=False, data=[], message="")
     try:
         data = json.loads(request.body)
-        host = data.get("host")
+        host = data.get("host")[1]
         days = data.get("days")
         memory_info = []
         redis_client = RedisClient()
@@ -251,4 +261,82 @@ def get_memory_info(request):
     except Exception as e:
         logger.error(e)
         response.message = f"an error occurred during the get memory info :{e}"
+        return JsonResponse(response.dict(), status=500)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_device(request):
+    """
+    删除节点信息
+    """
+    response = BaseResponse(status=False, message="")
+    try:
+        host = request.GET.get("host")
+        transaction.set_autocommit(False)
+        try:
+            device = Device.objects.get(ip_address=host)
+            device.delete()
+            node = Node.objects.get(ip_address=host)
+            node.delete()
+            redis_client = RedisClient()
+            ret, ret_msg = redis_client.delete_key(host)
+            if not ret:
+                raise ret_msg
+            transaction.commit()
+            ret_message = f"successfully deleted device {host}"
+            logger.info(ret_message)
+            response.status = True
+            response.message = ret_message
+        except Exception as e:
+            transaction.rollback()
+            ret_message = f"an error occurred during the delete device :{e}"
+            response.message = ret_message
+            logger.error(e)
+        finally:
+            transaction.set_autocommit(True)
+        return JsonResponse(response.dict(), status=200)
+    except Exception as e:
+        logger.error(e)
+        response.message = f"an error occurred during the delete device :{e}"
+        return JsonResponse(response.dict(), status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_device(request):
+    """
+    更新节点信息
+    """
+    response = BaseResponse(status=False, message="")
+    try:
+        data = json.loads(request.body)
+        host = data.get("host")
+        name = data.get("name")
+        user = data.get("user")
+        password = data.get("password")
+
+        if not name:
+            response.message = "Node name cannot be empty"
+            return JsonResponse(response.dict(), status=500)
+
+        if not user or not password:
+            response.message = "User and password cannot be empty"
+            return JsonResponse(response.dict(), status=500)
+
+        remote_client = RemoteClient(host=host, port=22, username=user, password=password)
+        connect_ret, msg = remote_client.connect()
+        if not connect_ret:
+            response.message = msg
+            return JsonResponse(response.dict(), status=500)
+        remote_client.disconnect()
+        device = Device.objects.get(ip_address=host)
+        device.node_name = name
+        device.save()
+        response.status = True
+        response.message = "successfully updated device"
+        return JsonResponse(response.dict(), status=200)
+    except Exception as e:
+        logger.error(e)
+        response.message = f"an error occurred during the update device :{e}"
         return JsonResponse(response.dict(), status=500)

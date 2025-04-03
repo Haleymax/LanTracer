@@ -31,12 +31,12 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item>
+        <v-list-item to="/devicemanagement">
           <v-list-item-icon>
             <v-icon>mdi-settings</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>设置</v-list-item-title>
+            <v-list-item-title>节点管理</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>

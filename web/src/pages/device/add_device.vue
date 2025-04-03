@@ -11,6 +11,16 @@
           :rules="NameRules"
           label="主机名称"
         ></v-text-field>
+        <v-text-field
+          v-model="user"
+          :rules="UserRules"
+          label="用户名"
+        ></v-text-field>
+        <v-text-field
+          v-model="password"
+          :rules="PasswordRules"
+          label="密码"
+        ></v-text-field>
         <v-btn class="mt-2" type="submit" block @click="submit">Submit</v-btn>
       </v-form>
     </v-sheet>
@@ -27,6 +37,16 @@ const HostRules = [
 const name = ref('')
 const NameRules = [
   (v: string) => !!v || '主机名称不能为空',
+]
+
+const user = ref('')
+const UserRules = [
+  (v: string) => !!v || '用户不能为空',
+]
+
+const password = ref('')
+const PasswordRules = [
+  (v: string) => !!v || '密码不能为空',
 ]
 
 

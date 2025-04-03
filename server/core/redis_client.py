@@ -43,3 +43,19 @@ class RedisClient:
             logger.info("successfully deleted {} days".format(days))
         except Exception as e:
             logger.error(e)
+
+    def delete_key(self, key):
+        """
+        删除一个键下对应的所有数据
+        """
+        try:
+            result = self.client.delete(key)
+            if result == 1:
+                logger.info("successfully deleted {}".format(key))
+                return True, "success"
+            else:
+                logger.error("failed to delete {}".format(key))
+                return False, "delete failed"
+        except Exception as e:
+            logger.error(f"Error deleting key {key}:{e}")
+            return False, f"happen error {e}"
