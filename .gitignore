@@ -18,3 +18,4 @@ testing/testcases/__pycache__
 testing/testcases/test_api_device/__pycache__
 testing/log
 .venv
+testing/data/api_data.yml
