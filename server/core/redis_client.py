@@ -59,3 +59,13 @@ class RedisClient:
         except Exception as e:
             logger.error(f"Error deleting key {key}:{e}")
             return False, f"happen error {e}"
+
+    def key_exists(self, key):
+        """
+        判断键是否存在
+        """
+        try:
+            return self.client.exists(key)
+        except Exception as e:
+            logger.error(e)
+            return False
