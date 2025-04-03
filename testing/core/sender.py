@@ -50,6 +50,19 @@ class Sender:
             logger.error(f"request failed : {e}")  # 错误级别建议用 error
             return False  # 或者 raise 重新抛出异常
 
+    def delete(self, url, params=None, headers=None):
+        try:
+            start_time = time.time()
+            self.response = self.session.delete(url, params=params, headers=headers)
+            end_time = time.time()
+            logger.info(f"successful send delete request to : {url}")
+            self.request_time = end_time - start_time
+            self.result = self.response.json()
+            return True
+        except Exception as e:
+            logger.error(f"request failed : {e}")
+            return False
+
     def check_status(self):
         """
         检查修改是否成功

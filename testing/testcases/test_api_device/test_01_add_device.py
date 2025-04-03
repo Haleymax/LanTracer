@@ -5,6 +5,7 @@ from testcases.test_api_device.conftest import api_case
 
 
 class TestRunApiTC:
+    @pytest.mark.name("test add device api")
     @pytest.mark.api
     @pytest.mark.parametrize("host, name, user, password",api_case["add_device"])
     def test_01_run_tc(self, host, name, user, password, add_device_url, rp_logger):
